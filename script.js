@@ -1,4 +1,4 @@
-const URL_BASE = 'https://us-central1-bigquerygame-262603.cloudfunctions.net/DocRepo';
+const URL_BASE = 'https://us-central1-bigquerygame-262603.cloudfunctions.net/DocRepo/';
 const HANDSET_URL = URL_BASE + 'handsetdocs';
 
 let docs;
