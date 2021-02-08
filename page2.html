@@ -1,7 +1,50 @@
-<html>
-  <head>
-    <title>
-      Handset documents
-    </title>
-  </head>
-</html>
+{
+  "applicationId": 767676,
+  "baseUris": [
+    "https://example.com/actions"
+  ],
+  "dataFetchUri": "https://example.com/demo-tickets",
+  "title": "DemoTickets",
+  "propertyDefinitions": [
+    {
+      "name": "ticket_type",
+      "label": "Ticket type",
+      "dataType": "STRING"
+    },
+    {
+      "options": [
+        {
+          "type": "SUCCESS",
+          "label": "In Progress",
+          "name": "inprogress"
+        },
+        {
+          "type": "DEFAULT",
+          "label": "Resolved",
+          "name": "resolved"
+        }
+      ],
+      "name": "status",
+      "label": "Status",
+      "dataType": "STATUS"
+    },
+    {
+      "name": "priority",
+      "label": "Priority",
+      "dataType": "STRING"
+    },
+    {
+      "name": "project",
+      "label": "Project",
+      "dataType": "STRING"
+    }
+  ],
+  "associatedHubSpotObjectTypes": [
+    "COMPANY"
+  ],
+  "associatedHubSpotObjectTypeProperties": {
+    "COMPANY": [
+      "domain"
+    ]
+  }
+}
