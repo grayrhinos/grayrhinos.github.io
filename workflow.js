@@ -1,4 +1,4 @@
-fetch('https://grayrhinos.github.io/workflow')
+fetch('https://grayrhinos.github.io/workflow.json')
 .then(function(response) {
   return response.json();
 })
