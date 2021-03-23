@@ -35,32 +35,20 @@
             "label": "Edit"
           },
           {
-            "type": "CONFIRMATION_ACTION_HOOK",
-            "confirmationMessage": "Are you sure you want to delete this ticket?",
-            "confirmButtonText": "Yes",
-            "cancelButtonText": "No",
-            "httpMethod": "DELETE",
-            "associatedObjectProperties": [
-              "protected_account"
-            ],
-            "uri": "https://example.com/tickets/245",
-            "label": "Delete"
-          }
+            "type": "IFRAME",
+            "width": 890,
+            "height": 748,
+            "uri": "https://console.coolsms.co.kr/purplebook",
+            "label": "Edit"
+          },
+          {
+            "type": "IFRAME",
+            "width": 890,
+            "height": 748,
+            "uri": "https://console.coolsms.co.kr/purplebook",
+            "label": "Edit"
+          },
         ]
       }
-    ],
-    "settingsAction": {
-      "type": "IFRAME",
-      "width": 890,
-      "height": 748,
-      "uri": "https://example.com/settings-iframe-contents",
-      "label": "Settings"
-    },
-    "primaryAction": {
-      "type": "IFRAME",
-      "width": 890,
-      "height": 748,
-      "uri": "http://localhost:5000/contacts/",
-      "label": "Send"
-    }
+    ]
   }
