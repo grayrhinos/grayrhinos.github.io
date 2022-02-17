@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+
+<head>
+    <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
+    <link href="/favicon.ico" rel="icon" type="image/x-icon">
+
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+    <title>Pharmacy Search</title>
+    <meta name="description" content="Example: 정보 창 옵션 사용하기">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="NAVER Maps API v3 바로가기">
+    <meta property="og:title" content="NAVER Maps API v3">
+    <meta property="og:description" content="NAVER Maps API v3로 여러분의 지도를 만들어 보세요. 유용한 기술문서와 다양한 예제 코드를 제공합니다.">
+    <meta property="og:image" content="https://navermaps.github.io/maps.js/docs/img/NAVERMaps.png">
+    <meta property="og:url" content="https://navermaps.github.io/maps.js">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="NAVER Maps API v3">
+    <meta name="twitter:description" content="NAVER Maps API v3로 여러분의 지도를 만들어 보세요. 유용한 기술문서와 다양한 예제 코드를 제공합니다.">
+    <meta name="twitter:image" content="https://navermaps.github.io/maps.js/docs/img/NAVERMaps.png">
+    <meta name="twitter:url" content="https://navermaps.github.io/maps.js">
+
+
+    <link type="text/css" rel="stylesheet" href="static/styles/sunlight.default.css">
+    <link type="text/css" rel="stylesheet" href="static/styles/site.flatly.css">
+    <link type="text/css" rel="stylesheet" href="static/css/highlightjs.css">
+</head>
+
+
+<body>
+    <div class="container" id="toc-content">
+        <div class="row">
+            <div class="col-md-12">
+                <div id="main" itemscope itemtype="https://schema.org/TechArticle">
+
+                    <script src="{{url_for('static', filename='./js/jquery-1.9.1.js')}}"></script>
+                    <script type="text/javascript" src="{{url_for('static', filename='./js/base.js')}}"></script>
+                    <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=83bfuniegk&amp;submodules=panorama,geocoder,drawing,visualization"></script>
+                    <link rel="stylesheet" type="text/css" href="static/css/base.css" />
+
+                    <section class="tutorial-section">
+                        <header></header>
+                        <article>
+                            <h1>Our Locations</h1>
+                            <div id="wrap" class="section">
+                                <h2>Our Locations</h2>
+                                <p>Find us near your location. </p>
+                                <div id="map" style="width:100%;height:600px;"></div>
+                            </div>
+                            <script id="code" type='text/javascript'>
+                                myvar = '{{datas|tojson|safe}}';
+                                var parsed = JSON.parse(myvar);
+
+                                var mainMap = new naver.maps.Map(document.getElementById('map'), {
+                                    center: new naver.maps.LatLng(37.5666805, 126.9784147),
+                                    zoom: 14
+                                });
+                                var bounds = mainMap.getBounds(),
+                                    southWest = bounds.getSW(),
+                                    northEast = bounds.getNE(),
+                                    lngSpan = northEast.lng() - southWest.lng(),
+                                    latSpan = northEast.lat() - southWest.lat();
+
+                                var markers = [],
+                                    infoWindows = [];
+
+                                function createMarkersInfoWindows(parsed) {
+
+                                    for (var i = 0; i < parsed.length; i++) {
+
+
+                                        var marker = new naver.maps.Marker({
+                                            map: mainMap,
+                                            position: new naver.maps.LatLng(parsed[i].lat, parsed[i].long),
+
+                                        });
+
+                                        var contentString = [
+                                            '<div class="iw_inner">',
+                                            '   <h3>' + parsed[i].Name + '</h3>',
+                                            '   <p>' + parsed[i].Address + '<br />',
+                                            '       ' + parsed[i].Phone + '<br />',
+                                            '   </p>',
+                                            '</div>'
+                                        ].join('');
+
+                                        var infowindow = new naver.maps.InfoWindow({
+                                            content: contentString,
+                                            maxWidth: 400,
+                                            backgroundColor: "#eee",
+                                            borderColor: "#2db400",
+                                            borderWidth: 3,
+                                            anchorSize: new naver.maps.Size(30, 30),
+                                            anchorSkew: true,
+                                            anchorColor: "#eee",
+                                            pixelOffset: new naver.maps.Point(20, -20)
+                                        });
+                                        markers.push(marker);
+                                        infoWindows.push(infowindow);
+                                    };
+                                }
+                                naver.maps.Event.addListener(mainMap, 'idle', function() {
+                                    updateMarkers(mainMap, markers);
+                                });
+
+                                function updateMarkers(map, markers) {
+
+                                    var mapBounds = map.getBounds();
+                                    var marker, position;
+
+                                    for (var i = 0; i < markers.length; i++) {
+
+                                        marker = markers[i]
+                                        position = marker.getPosition();
+
+                                        if (mapBounds.hasLatLng(position)) {
+                                            showMarker(map, marker);
+                                        } else {
+                                            hideMarker(map, marker);
+                                        }
+                                    }
+                                }
+
+                                function showMarker(map, marker) {
+
+                                    if (marker.setMap()) return;
+                                    marker.setMap(map);
+                                }
+
+                                function hideMarker(map, marker) {
+
+                                    if (!marker.setMap()) return;
+                                    marker.setMap(null);
+                                }
+
+                                // 해당 마커의 인덱스를 seq라는 클로저 변수로 저장하는 이벤트 핸들러를 반환합니다.
+                                function getClickHandler(seq) {
+                                    return function(e) {
+                                        var marker = markers[seq],
+                                            infoWindow = infoWindows[seq];
+
+                                        if (infoWindow.getMap()) {
+                                            infoWindow.close();
+                                        } else {
+                                            infoWindow.open(mainMap, marker);
+                                        }
+                                    }
+                                }
+
+                                function setMapCeter(map, point) {
+                                    map.setCenter(point);
+                                }
+
+                                naver.maps.onJSContentLoaded = createMarkersInfoWindows(parsed);
+
+                                for (var i = 0, ii = markers.length; i < ii; i++) {
+                                    naver.maps.Event.addListener(markers[i], 'click', getClickHandler(i));
+                                }
+                            </script>
+                            <!--DROPDOWN SELECTION START -->
+                            <br>
+                            <div class="row">
+                                <div class="form-group col-xs-6">
+                                    <label for="sido">Select Region</label>
+                                    <select class="form-control" style="color: rgb(8, 8, 8); background: #ccd2db; height: 45px;" id="sido">
+                                        <option selected disabled>Choose Region</option>
+                                    {% for o in sido %}
+                                        <option value="{{ o }}">{{ o }}</option>
+                                    {% endfor %}
+                                  </select>
+                                </div>
+                                <div class="form-group col-xs-6">
+                                    <label for="sigugun">Select City</label>
+                                    <select class="form-control"  style="color:rgb(8, 8, 8); background:#ccd2db; height: 45px;" id="sigugun">
+                                        <option selected disabled>Choose City</option>
+                                    {% for o in sigugun %}
+                                        <option value="{{ o }}">{{ o }}</option>
+                                    {% endfor %}
+                                  </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <button type="button" style="color:white; background:#3498DB;" id="process_input">Process selection!</button>
+                            </div><br><br>
+                            <div id="processed_results"></div>
+                </div>
+                <table id="example" class="display" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Pharmacy Name</th>
+                            <th>Phone Number</th>
+                            <th>Address</th>
+                        </tr>
+                    </thead>
+                </table>
+
+                <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+                <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.11.3/fc-4.0.1/r-2.2.9/sp-1.4.0/datatables.min.css" />
+                <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.11.3/fc-4.0.1/r-2.2.9/sp-1.4.0/datatables.min.js" defer></script>
+                <script type="text/javascript">
+                    $(document).ready(function() {
+
+                        $('#sido').change(function() {
+
+                            $.getJSON('/_update_dropdown', {
+                                sido: $('#sido').val()
+
+                            }).success(function(data) {
+                                $('#sigugun').html(data.html_string_selected);
+                            })
+                        });
+                        $('#process_input').bind('click', function() {
+
+                            $.getJSON('/_process_data', {
+                                sido: $('#sido').val(),
+                                sigugun: $('#sigugun').val(),
+
+
+                            }).success(function(data) {
+                                $('#processed_results').text(data.random_text);
+
+                                createMarkersInfoWindows(data)
+                                var point = new naver.maps.LatLng(data["data"][0]['lat'], data["data"][0]['long']);
+                                setMapCeter(mainMap, point)
+                                updateDataTable(data.data)
+                            })
+                            return false;
+
+                        });
+
+                        function updateDataTable(data) {
+                            table.destroy();
+                            table = $('#example').DataTable({
+                                data: data,
+                                autoFill: true,
+                                searching: true,
+                                retrieve: true,
+                                "columns": [{
+                                        "data": "Name"
+                                    }, {
+                                        "data": "Phone"
+                                    }, {
+                                        "data": "Address"
+                                    },
+
+                                ]
+                            });
+                        }
+                        table = $('#example').DataTable({
+                            data: parsed,
+                            autoFill: true,
+                            searching: true,
+                            retrieve: true,
+                            "columns": [{
+                                    "data": "Name"
+                                }, {
+                                    "data": "Phone"
+                                }, {
+                                    "data": "Address"
+                                },
+
+                            ]
+                        });
+                    });
+
+                </script>
+                <!--DROPDOWN SELECTION END -->
+                </article>
+
+                </section>
+
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+    </div>
+    </div>
+
+    <!--[if gt IE 8]> <!-- -->
+    <script src="{{url_for('static', filename='./scripts/docstrap.lib.js')}}"></script>
+    <script id="__toc" src="static/scripts/toc.js"></script>
+    <script type="text/javascript" src="{{url_for('static', filename='./scripts/fulltext-search-ui.js')}}"></script>
+    <script type="text/javascript">
+        var isTocSupported = true;
+        var isSearchSupported = true;
+    </script>
+    <!-- <![endif]-->
+
+    <script src="{{url_for('static', filename='./js/highlight.min.js')}}"></script>
+
+    <script>
+        $(function() {
+            $("[id*='$']").each(function() {
+                var $this = $(this);
+
+                $this.attr("id", $this.attr("id").replace("$", "__"));
+            });
+
+
+            $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+            });
+
+            if (isTocSupported) {
+                $.catchAnchorLinks({
+                    navbarOffset: 10
+                });
+
+                $("#toc").toc({
+                    anchorName: function(i, heading, prefix) {
+                        var id = $(heading).attr("id");
+                        return id && id.replace(/\~/g, '-inner-').replace(/\./g, '-static-') || (prefix + i);
+                    },
+                    selectors: "#toc-content h1,#toc-content h2,#toc-content h3,#toc-content h4",
+                    showAndHide: false,
+                    smoothScrolling: true
+                });
+            }
+
+            $("#main span[id^='toc']").addClass("toc-shim");
+            $('.dropdown-toggle').dropdown();
+            $("table").each(function() {
+                var $this = $(this);
+                $this.addClass('table');
+            });
+            $("#main>section:not('.tutorial-section')").localScroll({
+                offset: {
+                    top: -170 //offset by the height of your header (give or take a few px, see what works for you)
+                }
+            });
+        });
+    </script>
+
+    <script type="text/javascript">
+        if (isSearchSupported) {
+            $(document).ready(function() {
+                SearcherDisplay.init();
+
+                var w = $(window);
+                $('.dropdown-menu').on('mousewheel', function(e, d) {
+                    var t = $(this),
+                        up = e.originalEvent.deltaY < 0;
+
+                    if (w.width() < 768) return;
+
+                    if (up) {
+                        if (t.scrollTop() === 0) e.preventDefault();
+                    } else {
+                        if (t.scrollTop() == t.get(0).scrollHeight - t.innerHeight()) e.preventDefault();
+                    }
+                })
+            });
+        }
+    </script>
+
+    <script type="text/javascript" src="https://wcs.naver.net/wcslog.js"></script>
+    <script type="text/javascript">
+        if (!wcs_add) var wcs_add = {};
+        wcs_add["wa"] = "53b18ad34ed198";
+        wcs_do();
+    </script>
+</body>
+
+</html>
